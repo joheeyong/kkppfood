@@ -2,11 +2,28 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.compose.compiler)
+
+    id("com.google.dagger.hilt.android") version "2.51.1"
+    kotlin("kapt")
+}
+
+hilt {
+    enableAggregatingTask = false
 }
 
 android {
     namespace = "com.luxrobo.smartparing.kkppfood"
     compileSdk = 36
+
+    configurations.all {
+        resolutionStrategy.eachDependency {
+            if (requested.group == "com.squareup" && requested.name == "javapoet") {
+                useVersion("1.13.0")
+                because("Hilt가 기대하는 javapoet 버전과 일치시키기 위함")
+            }
+        }
+    }
+
 
     defaultConfig {
         applicationId = "com.luxrobo.smartparing.kkppfood"
@@ -71,4 +88,26 @@ dependencies {
 
     // UI 테스트 (나중에 쓰고 싶으면)
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+
+    // Hilt
+    implementation("com.google.dagger:hilt-android:2.51.1")
+    kapt("com.google.dagger:hilt-android-compiler:2.51.1")
+
+
+    // JavaPoet 최신 버전 강제 추가 (중요)
+    implementation("com.squareup:javapoet:1.13.0")
+    kapt("com.squareup:javapoet:1.13.0")
+
+// Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+
+// OkHttp
+    implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.14")
+    implementation("com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.14")
+
+// Coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+
 }
