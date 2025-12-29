@@ -13,6 +13,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
 import com.luxrobo.smartparing.kkppfood.domain.model.Meal
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -122,16 +123,25 @@ private fun MealItem(
             .fillMaxWidth()
             .clickable(onClick = onClick)
     ) {
-        Column(modifier = Modifier.padding(14.dp)) {
-            Text(
-                text = meal.name,
-                style = MaterialTheme.typography.titleMedium
+        Row(modifier = Modifier.padding(12.dp)) {
+            AsyncImage(
+                model = meal.thumbnailUrl,
+                contentDescription = null,
+                modifier = Modifier.size(72.dp)
             )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = listOfNotNull(meal.category, meal.area).joinToString(" • ").ifBlank { "Unknown" },
-                style = MaterialTheme.typography.bodyMedium
-            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = meal.name,
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = listOfNotNull(meal.category, meal.area).joinToString(" • ").ifBlank { "Unknown" },
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         }
     }
 }
+
