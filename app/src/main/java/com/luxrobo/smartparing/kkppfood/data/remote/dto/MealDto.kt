@@ -28,6 +28,9 @@ data class MealDto(
     @SerializedName("strTags")
     val strTags: String?,
 
+    @SerializedName("strYoutube")
+    val strYoutube: String?,
+
     // 재료 / 계량은 상세 화면에서 사용
     @SerializedName("strIngredient1")
     val strIngredient1: String?,

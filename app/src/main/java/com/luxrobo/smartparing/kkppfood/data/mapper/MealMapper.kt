@@ -1,6 +1,7 @@
 package com.luxrobo.smartparing.kkppfood.data.mapper
 
 import com.luxrobo.smartparing.kkppfood.data.remote.dto.MealDto
+import com.luxrobo.smartparing.kkppfood.domain.model.Ingredient
 import com.luxrobo.smartparing.kkppfood.domain.model.Meal
 
 internal fun MealDto.toDomain(): Meal {
@@ -10,6 +11,13 @@ internal fun MealDto.toDomain(): Meal {
         ?.filter { it.isNotBlank() }
         ?: emptyList()
 
+    val ingredients = extractIngredients().map {
+        Ingredient(
+            name = it.first,
+            measure = it.second
+        )
+    }
+
     return Meal(
         id = idMeal.orEmpty(),
         name = strMeal.orEmpty(),
@@ -17,9 +25,12 @@ internal fun MealDto.toDomain(): Meal {
         area = strArea,
         thumbnailUrl = strMealThumb,
         instructions = strInstructions,
-        tags = tags
+        tags = tags,
+        ingredients = ingredients,
+        youtubeUrl = strYoutube
     )
 }
+
 
 /**
  * 상세화면에서 사용할 재료/계량 리스트 생성용 헬퍼.
