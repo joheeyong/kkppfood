@@ -5,21 +5,27 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.luxrobo.smartparing.kkppfood.domain.model.Meal
+import com.luxrobo.smartparing.kkppfood.presentation.components.ErrorView
+import com.luxrobo.smartparing.kkppfood.presentation.components.LoadingView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
-    onOpenCategories: () -> Unit,
+    onOpenCategory: () -> Unit,
+    onOpenFavorite: () -> Unit,
     onOpenDetail: (String) -> Unit,
     viewModel: SearchViewModel = hiltViewModel()
 ) {
@@ -30,7 +36,13 @@ fun SearchScreen(
             TopAppBar(
                 title = { Text("KKPP Food") },
                 actions = {
-                    TextButton(onClick = onOpenCategories) { Text("Categories") }
+                    TextButton(onClick = onOpenCategory) { Text("Categories") }
+                    IconButton(onClick = onOpenFavorite) {
+                        Icon(
+                            imageVector = Icons.Filled.Favorite,
+                            contentDescription = "Favorite"
+                        )
+                    }
                 }
             )
         }
@@ -49,7 +61,6 @@ fun SearchScreen(
                     singleLine = true,
                     label = { Text("Search meal") },
                     keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Text,
                         imeAction = ImeAction.Search
                     )
                 )
@@ -66,47 +77,33 @@ fun SearchScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            if (state.isLoading) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    CircularProgressIndicator()
+            when {
+                state.isLoading -> {
+                    LoadingView(modifier = Modifier.fillMaxSize())
                 }
-                Spacer(modifier = Modifier.height(12.dp))
-            }
 
-            state.errorMessage?.let { msg ->
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)
-                ) {
-                    Row(
-                        modifier = Modifier.padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                state.errorMessage != null -> {
+                    ErrorView(
+                        message = state.errorMessage ?: "Unknown error",
+                        onRetry = viewModel::search,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+
+                state.query.isNotBlank() && state.meals.isEmpty() -> {
+                    Text("No results.")
+                }
+
+                else -> {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(vertical = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text(
-                            modifier = Modifier.weight(1f),
-                            text = msg,
-                            color = MaterialTheme.colorScheme.onErrorContainer
-                        )
-                        TextButton(onClick = viewModel::clearError) { Text("OK") }
+                        items(state.meals) { meal ->
+                            MealItem(meal = meal, onClick = { onOpenDetail(meal.id) })
+                        }
                     }
-                }
-                Spacer(modifier = Modifier.height(12.dp))
-            }
-
-            if (!state.isLoading && state.errorMessage == null && state.meals.isEmpty() && state.query.isNotBlank()) {
-                Text("No results.")
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(state.meals) { meal ->
-                    MealItem(meal = meal, onClick = { onOpenDetail(meal.id) })
                 }
             }
         }
@@ -137,11 +134,12 @@ private fun MealItem(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = listOfNotNull(meal.category, meal.area).joinToString(" • ").ifBlank { "Unknown" },
+                    text = listOfNotNull(meal.category, meal.area)
+                        .joinToString(" • ")
+                        .ifBlank { "Unknown" },
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
         }
     }
 }
-

@@ -115,4 +115,13 @@ dependencies {
 
     implementation("io.coil-kt:coil-compose:2.7.0")
 
+    val roomVersion = "2.8.4"
+
+    implementation("androidx.room:room-runtime:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion")
+    kapt("androidx.room:room-compiler:$roomVersion")
+
+    implementation("androidx.compose.material:material-icons-extended")
+
+
 }

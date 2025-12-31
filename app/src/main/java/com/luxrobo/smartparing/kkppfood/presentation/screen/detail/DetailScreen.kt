@@ -5,6 +5,10 @@ import android.net.Uri
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -25,13 +29,32 @@ fun DetailScreen(
     viewModel: DetailViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
+    val isFavorite by viewModel.isFavorite.collectAsState()
     val context = LocalContext.current
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Recipe") },
-                navigationIcon = { TextButton(onClick = onBack) { Text("Back") } }
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(
+                        onClick = { viewModel.toggleFavorite() },
+                        enabled = state.meal != null && !state.isLoading
+                    ) {
+                        Icon(
+                            imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                            contentDescription = "Favorite"
+                        )
+                    }
+                }
             )
         }
     ) { padding ->

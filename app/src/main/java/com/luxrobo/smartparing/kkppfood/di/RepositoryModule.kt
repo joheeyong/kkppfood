@@ -1,6 +1,8 @@
 package com.luxrobo.smartparing.kkppfood.di
 
+import com.luxrobo.smartparing.kkppfood.data.repository.impl.FavoriteRepositoryImpl
 import com.luxrobo.smartparing.kkppfood.data.repository.impl.MealRepositoryImpl
+import com.luxrobo.smartparing.kkppfood.domain.repository.FavoriteRepository
 import com.luxrobo.smartparing.kkppfood.domain.repository.MealRepository
 import dagger.Binds
 import dagger.Module
@@ -17,4 +19,11 @@ abstract class RepositoryModule {
     abstract fun bindMealRepository(
         impl: MealRepositoryImpl
     ): MealRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindFavoriteRepository(
+        impl: FavoriteRepositoryImpl
+    ): FavoriteRepository
+
 }
